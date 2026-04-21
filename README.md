@@ -194,6 +194,11 @@ Each response shows a badge indicating which agent handled the query:
 
 ---
 
+## Presentation
+A slide deck covering the problem, solution, architecture, and tech stack is available in [`assets/CustomerSupportAI_Demo_Slides.pptx`](assets/CustomerSupportAI_Demo_Slides.pptx).
+
+---
+
 ## Notes
 
 This project uses the free tier of the Gemini API which has rate limits. For heavy testing or production use, consider upgrading to a paid tier.
