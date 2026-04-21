@@ -19,22 +19,40 @@ The system is built around a supervisor agent that sits in the middle and decide
 
 When a user sends a message, the LangGraph Supervisor first classifies the intent. If it looks like a question about a customer or their tickets, it goes to the SQL Agent. If it looks like a policy question, it goes to the RAG Agent. Simple greetings or general questions are handled directly by the LLM.
 
-Each specialist agent has access to a set of MCP tools it can call. The SQL Agent uses tools that query a SQLite database. The RAG Agent uses tools that search a ChromaDB vector store built from uploaded PDFs. The results come back, the LLM summarizes them into a natural language response, and that gets sent back to the user.
+Each specialist agent has access to a set of MCP tools it can call. The SQL Agent uses tools that query a SQLite database. The RAG Agent uses tools that search a ChromaDB vector store built from uploaded PDFs. The results come back, the LLM synthesizes a natural language response, and that gets sent back to the user.
 
 ```
-Streamlit UI
-     |
-     v
-LangGraph Supervisor  (classifies: sql / rag / general)
-     |              \
-     v               v
-SQL Agent         RAG Agent
-     |               |
-     v               v
-MCP SQL Tools    MCP RAG Tools
-     |               |
-     v               v
-SQLite DB        ChromaDB
+┌─────────────────────────────────────────────────────────┐
+│                      Streamlit UI                       │
+│             Chat interface + PDF Upload Sidebar         │
+└────────────────────────┬────────────────────────────────┘
+                         │
+                         ▼
+┌─────────────────────────────────────────────────────────┐
+│              LangGraph Supervisor Agent                 │
+│        Classifies query → sql / rag / general           │
+└──────────┬──────────────────────────────┬───────────────┘
+           │                              │
+           ▼                              ▼
+  ┌─────────────────┐            ┌─────────────────┐
+  │    SQL Agent    │            │    RAG Agent    │
+  │ LangChain+Gemini│            │ LangChain+Gemini│
+  └────────┬────────┘            └────────┬────────┘
+           │                              │
+           ▼                              ▼
+  ┌─────────────────┐            ┌─────────────────┐
+  │  FastMCP Server │            │  FastMCP Server │
+  │    SQL Tools    │            │    RAG Tools    │
+  └────────┬────────┘            └────────┬────────┘
+           │                              │
+           ▼                              ▼
+  ┌─────────────────┐            ┌─────────────────┐
+  │    SQLite DB    │            │    ChromaDB     │
+  │Customers+Tickets│            │Policy Embeddings│
+  └─────────────────┘            └─────────────────┘
+
+           LLM: Google Gemini 2.5 Flash Lite
+     Embeddings: sentence-transformers/all-MiniLM-L6-v2
 ```
 
 ---
@@ -69,6 +87,8 @@ customer-support-ai/
 │   └── rag_tools.py          # Policy search/ingest tools
 ├── data/
 │   └── seed_data.py          # Generates dummy customer data
+├── assets/
+│   └── CustomerSupportAI_Demo_Slides.pptx  # Demo presentation
 ├── policies/                 # Upload policy PDFs here
 ├── requirements.txt
 ├── .env.example
@@ -85,7 +105,7 @@ customer-support-ai/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/customer-support-ai.git
+git clone https://github.com/Nusaibah-Rawnak/customer-support-ai.git
 cd customer-support-ai
 ```
 
@@ -181,20 +201,21 @@ Each response shows a badge indicating which agent handled the query:
 ## MCP Server Tools
 
 ### SQL Tools
-- tool_get_customer_by_name: Look up a customer by name
-- tool_get_tickets_by_customer_name: Get all tickets for a customer
-- tool_get_open_tickets: List all open or in-progress tickets
-- tool_get_all_customers: List all customers
-- tool_run_sql_query: Run a custom SELECT query
+- `tool_get_customer_by_name` - Look up a customer by name
+- `tool_get_tickets_by_customer_name` - Get all tickets for a customer
+- `tool_get_open_tickets` - List all open or in-progress tickets
+- `tool_get_all_customers` - List all customers
+- `tool_run_sql_query` - Run a custom SELECT query
 
 ### RAG Tools
-- tool_search_policies: Semantic search over policy documents
-- tool_list_uploaded_documents: List all ingested documents
-- tool_ingest_pdf: Ingest a new PDF into the knowledge base
+- `tool_search_policies` - Semantic search over policy documents
+- `tool_list_uploaded_documents` - List all ingested documents
+- `tool_ingest_pdf` - Ingest a new PDF into the knowledge base
 
 ---
 
 ## Presentation
+
 A slide deck covering the problem, solution, architecture, and tech stack is available in [`assets/CustomerSupportAI_Demo_Slides.pptx`](assets/CustomerSupportAI_Demo_Slides.pptx).
 
 ---
