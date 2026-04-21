@@ -1,0 +1,21 @@
+# Virtual environment
+venv/
+
+# Environment variables
+.env
+
+# Database (will be seeded on setup)
+data/customers.db
+data/chroma_store/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+
+# Streamlit
+.streamlit/
+
+# Policies (user uploaded)
+policies/
