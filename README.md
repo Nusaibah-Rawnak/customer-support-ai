@@ -86,7 +86,7 @@ customer-support-ai/
 │   ├── sql_tools.py          # Customer/ticket DB tools
 │   └── rag_tools.py          # Policy search/ingest tools
 ├── data/
-│   └── seed_data.py          # Generates dummy customer data
+│   └── seed_data.py          # Generates 100 synthetic customers and 376 tickets
 ├── assets/
 │   └── CustomerSupportAI_Demo_Slides.pptx  # Demo presentation
 ├── policies/                 # Upload policy PDFs here
@@ -135,6 +135,8 @@ GOOGLE_API_KEY=your_gemini_api_key_here
 python3 data/seed_data.py
 ```
 
+This generates 100 synthetic customers and ~376 support tickets using the Faker library.
+
 ### 6. Run the app
 ```bash
 streamlit run app.py
@@ -153,6 +155,11 @@ Ask questions about customers and their support tickets in plain English:
 - "Who are our Enterprise customers?"
 - "Show me all open and in-progress tickets"
 - "How many customers do we have from the USA?"
+- "Who are our highest value Enterprise customers?"
+- "Which customers have a satisfaction score below 3?"
+- "What is the average resolution time for high priority tickets?"
+- "Which agent handles the most tickets?"
+- "Show me all open billing tickets"
 
 ### Querying Policy Documents
 
@@ -183,6 +190,9 @@ Each response shows a badge indicating which agent handled the query:
 | plan | TEXT | Basic / Premium / Enterprise |
 | joined_date | TEXT | Account creation date |
 | country | TEXT | Country of residence |
+| company | TEXT | Company the customer belongs to |
+| account_value | REAL | Annual spend in USD |
+| satisfaction_score | REAL | Customer satisfaction rating (1.0 to 5.0) |
 
 ### support_tickets
 | Column | Type | Description |
@@ -193,8 +203,11 @@ Each response shows a badge indicating which agent handled the query:
 | description | TEXT | Issue description |
 | status | TEXT | Open / In Progress / Resolved / Closed |
 | priority | TEXT | Low / Medium / High |
+| category | TEXT | Billing / Technical / Account / Feature Request |
+| agent_assigned | TEXT | Support agent handling the ticket |
 | created_date | TEXT | Date created |
 | resolved_date | TEXT | Date resolved (if applicable) |
+| resolution_time_hours | INTEGER | Hours taken to resolve (null if unresolved) |
 
 ---
 

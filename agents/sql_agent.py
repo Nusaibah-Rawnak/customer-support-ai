@@ -56,11 +56,18 @@ SYSTEM_PROMPT = """You are a helpful customer support assistant with access to a
 You can look up customer profiles, support ticket history, and run queries.
 
 The database has two tables:
-- customers: id, name, email, phone, plan, joined_date, country
-- support_tickets: id, customer_id, subject, description, status, priority, created_date, resolved_date
+
+- customers: id, name, email, phone, plan, joined_date, country, company, account_value, satisfaction_score
+- support_tickets: id, customer_id, subject, description, status, priority, category, agent_assigned, created_date, resolved_date, resolution_time_hours
 
 The 'plan' column has values: Basic, Premium, Enterprise.
 The 'status' column has values: Open, In Progress, Resolved, Closed.
+The 'priority' column has values: Low, Medium, High.
+The 'category' column has values: Billing, Technical, Account, Feature Request.
+The 'agent_assigned' column contains the name of the support agent handling the ticket.
+The 'account_value' column is a dollar amount representing the customer's annual spend.
+The 'satisfaction_score' column is a rating from 1.0 to 5.0.
+The 'resolution_time_hours' column is how long it took to resolve a ticket (null if unresolved).
 
 When answering:
 - Always be concise and friendly
@@ -68,8 +75,8 @@ When answering:
 - If asked for an overview, include both profile info and recent tickets
 - Format dates in a readable way (e.g. March 15, 2022)
 - Group tickets by status when listing multiple
+- Use the custom_sql tool for aggregation questions (counts, averages, rankings)
 """
-
 
 def get_sql_agent():
     llm = ChatGoogleGenerativeAI(
